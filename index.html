@@ -644,8 +644,8 @@ function toggleFee(on){
   var d=window._quoteData;
   var total=on?d.total:d.total-d.svcFee;
   var balance=on?d.balance:d.balance-d.svcFee;
-  var feeRow=document.getElementById("qFeeRow");
-  if(feeRow)feeRow.style.display=on?"flex":"none";
+  var feeVal=document.getElementById("qFeeVal");
+  if(feeVal)feeVal.style.visibility=on?"visible":"hidden";
   var tv=document.getElementById("qTotalVal");if(tv)tv.textContent=fmt(total);
   var bv=document.getElementById("qBalVal");if(bv)bv.textContent=fmt(balance);
   var dd=document.getElementById("qDepDesc");if(dd)dd.textContent="Production Deposit \u2014 "+d.depPct+"% of project total ("+fmt(total)+")";
