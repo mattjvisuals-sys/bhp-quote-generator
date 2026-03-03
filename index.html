@@ -596,7 +596,7 @@ function showQuote(){
 
   html+='<div class="q-totals" style="margin:0 44px;"><div class="q-total-row"><span>Subtotal</span><span class="q-tr-val">'+fmt(d.sub)+'</span></div>';
   html+='<div class="q-total-row"><span>Production Fee ('+d.mkp+'%)</span><span class="q-tr-val">'+fmt(d.fee)+'</span></div>';
-  if(d.svcFee>0)html+='<div class="q-total-row"><span>Production Coordination & Administration</span><span class="q-tr-val">'+fmt(d.svcFee)+'</span></div>';
+  if(d.svcFee>0)html+='<div class="q-total-row"><span>Production Processing Fee</span><span class="q-tr-val">'+fmt(d.svcFee)+'</span></div>';
   if(d.manualAdj!==0)html+='<div class="q-total-row"><span>Adjustment</span><span class="q-tr-val">'+fmt(d.manualAdj)+'</span></div>';
   html+='<div class="q-grand"><span class="q-g-label">TOTAL</span><span class="q-g-val">'+fmt(d.total)+'</span></div>';
   html+='<div style="margin-top:14px;padding-top:14px;border-top:1px solid #e0dcd4">';
