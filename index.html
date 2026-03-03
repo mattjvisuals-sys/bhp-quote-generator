@@ -316,6 +316,9 @@ textarea{width:100%;background:var(--surface);border:1px solid #333;border-radiu
         <div class="field"><label>Transfer Fee % (PayPal)</label><div class="input-wrap"><input type="number" id="transferPct" value="3.49" step="0.01" class="has-suffix" oninput="recalc()"><span class="suffix">%</span></div></div>
       </div>
       <div id="transferCalc" style="font-size:11px;color:#777;margin:-4px 0 10px;line-height:1.6"></div>
+      <div class="grid" style="margin-bottom:10px">
+        <div class="field"><label>Manual Override $</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="manualAdj" value="0" class="has-prefix" oninput="recalc()" placeholder="e.g. 100 or -100"></div></div>
+      </div>
       <div class="field"><label>NOTES</label><textarea id="notes" rows="3" placeholder="Additional terms, notes..."></textarea></div>
     </div>
     <!-- Summary -->
@@ -525,7 +528,8 @@ function recalc(){
   var baseDep=baseTotal*(depPct/100);
   var xferOnDep=baseDep*(xferPct/100);
   var svcFee=xferOnDep;
-  var total=baseTotal+svcFee;
+  var manualAdj=parseFloat(document.getElementById("manualAdj").value)||0;
+  var total=baseTotal+svcFee+manualAdj;
   var deposit=baseDep+xferOnDep;
   var balance=total-deposit;
 
@@ -534,6 +538,7 @@ function recalc(){
   var bkdn="Equipment: "+fmt(equipTotal)+"<br>Travel: "+fmt(travelTotal)+"<br>Crew: "+fmt(crewTotal)+
     '<br><span style="margin-top:4px;border-top:1px solid #3a3220;padding-top:4px;display:inline-block">Subtotal: '+fmt(sub)+"</span><br>+ "+mkp+"% fee: "+fmt(fee);
   if(svcFee>0)bkdn+="<br>+ Transfer fees: "+fmt(svcFee);
+  if(manualAdj!==0)bkdn+="<br>"+(manualAdj>0?"+":"")+" Adjustment: "+fmt(manualAdj);
   bkdn+='<br><span style="margin-top:4px;border-top:1px solid #3a3220;padding-top:4px;display:inline-block">Deposit ('+depPct+'%): '+fmt(deposit)+'</span><br>Balance: '+fmt(balance);
   document.getElementById("summaryBreakdown").innerHTML=bkdn;
 
@@ -542,7 +547,7 @@ function recalc(){
   else{tcEl.innerHTML="";}
 
   // Store for quote
-  window._quoteData={equipTotal:equipTotal,travelTotal:travelTotal,crewTotal:crewTotal,sub:sub,fee:fee,svcFee:svcFee,total:total,mkp:mkp,
+  window._quoteData={equipTotal:equipTotal,travelTotal:travelTotal,crewTotal:crewTotal,sub:sub,fee:fee,svcFee:svcFee,manualAdj:manualAdj,total:total,mkp:mkp,
     depPct:depPct,deposit:deposit,balance:balance,
     equipItems:[],travelItems:travelItems,crewItems:[],gripDays:gripDays,gripTotal:gripTotal,greenTotal:greenTotal,studioTotal:studioTotal,shootDays:shootDays};
   if(gripDays>0)window._quoteData.equipItems.push({d:"Grip & Lighting Kit Fee ("+gripDays+" "+pl(gripDays,"day")+")",a:gripTotal});
@@ -592,6 +597,7 @@ function showQuote(){
   html+='<div class="q-totals" style="margin:0 44px;"><div class="q-total-row"><span>Subtotal</span><span class="q-tr-val">'+fmt(d.sub)+'</span></div>';
   html+='<div class="q-total-row"><span>Production Fee ('+d.mkp+'%)</span><span class="q-tr-val">'+fmt(d.fee)+'</span></div>';
   if(d.svcFee>0)html+='<div class="q-total-row"><span>Production Coordination & Administration</span><span class="q-tr-val">'+fmt(d.svcFee)+'</span></div>';
+  if(d.manualAdj!==0)html+='<div class="q-total-row"><span>Adjustment</span><span class="q-tr-val">'+fmt(d.manualAdj)+'</span></div>';
   html+='<div class="q-grand"><span class="q-g-label">TOTAL</span><span class="q-g-val">'+fmt(d.total)+'</span></div>';
   html+='<div style="margin-top:14px;padding-top:14px;border-top:1px solid #e0dcd4">';
   html+='<div class="q-total-row"><span>Deposit Due ('+d.depPct+'%)</span><span class="q-tr-val" style="color:#d4a438;font-weight:700">'+fmt(d.deposit)+'</span></div>';
