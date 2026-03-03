@@ -313,8 +313,9 @@ textarea{width:100%;background:var(--surface);border:1px solid #333;border-radiu
         <div class="field"><label>Deposit %</label><div class="input-wrap"><input type="number" id="depositPct" value="50" min="0" max="100" class="has-suffix" oninput="recalc()"><span class="suffix">%</span></div></div>
       </div>
       <div class="grid" style="margin-bottom:10px">
-        <div class="field"><label>Service Fee Estimate</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="serviceFee" value="0" class="has-prefix" oninput="recalc()"></div></div>
+        <div class="field"><label>Transfer Fee % (PayPal)</label><div class="input-wrap"><input type="number" id="transferPct" value="3.49" step="0.01" class="has-suffix" oninput="recalc()"><span class="suffix">%</span></div></div>
       </div>
+      <div id="transferCalc" style="font-size:11px;color:#777;margin:-4px 0 10px;line-height:1.6"></div>
       <div class="field"><label>NOTES</label><textarea id="notes" rows="3" placeholder="Additional terms, notes..."></textarea></div>
     </div>
     <!-- Summary -->
@@ -518,19 +519,27 @@ function recalc(){
   var sub=equipTotal+travelTotal+crewTotal;
   var mkp=v("markup");
   var fee=sub*(mkp/100);
-  var svcFee=v("serviceFee");
-  var total=sub+fee+svcFee;
+  var baseTotal=sub+fee;
   var depPct=v("depositPct");
-  var deposit=total*(depPct/100);
+  var xferPct=v("transferPct");
+  var baseDep=baseTotal*(depPct/100);
+  var xferOnDep=baseDep*(xferPct/100);
+  var svcFee=xferOnDep;
+  var total=baseTotal+svcFee;
+  var deposit=baseDep+xferOnDep;
   var balance=total-deposit;
 
   document.getElementById("headerTotal").textContent=fmt(total);
   document.getElementById("summaryTotal").textContent=fmt(total);
   var bkdn="Equipment: "+fmt(equipTotal)+"<br>Travel: "+fmt(travelTotal)+"<br>Crew: "+fmt(crewTotal)+
     '<br><span style="margin-top:4px;border-top:1px solid #3a3220;padding-top:4px;display:inline-block">Subtotal: '+fmt(sub)+"</span><br>+ "+mkp+"% fee: "+fmt(fee);
-  if(svcFee>0)bkdn+="<br>+ Coordination: "+fmt(svcFee);
+  if(svcFee>0)bkdn+="<br>+ Transfer fees: "+fmt(svcFee);
   bkdn+='<br><span style="margin-top:4px;border-top:1px solid #3a3220;padding-top:4px;display:inline-block">Deposit ('+depPct+'%): '+fmt(deposit)+'</span><br>Balance: '+fmt(balance);
   document.getElementById("summaryBreakdown").innerHTML=bkdn;
+
+  var tcEl=document.getElementById("transferCalc");
+  if(xferPct>0){tcEl.innerHTML="Deposit "+fmt(baseDep)+" × "+xferPct+"% = <span style='color:var(--gold);font-weight:600'>"+fmt(xferOnDep)+"</span>";}
+  else{tcEl.innerHTML="";}
 
   // Store for quote
   window._quoteData={equipTotal:equipTotal,travelTotal:travelTotal,crewTotal:crewTotal,sub:sub,fee:fee,svcFee:svcFee,total:total,mkp:mkp,
