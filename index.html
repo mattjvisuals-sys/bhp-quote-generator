@@ -312,6 +312,9 @@ textarea{width:100%;background:var(--surface);border:1px solid #333;border-radiu
         <div class="field"><label>Production Insurance</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="insurance" value="0" class="has-prefix" oninput="recalc()"></div></div>
         <div class="field"><label>Deposit %</label><div class="input-wrap"><input type="number" id="depositPct" value="50" min="0" max="100" class="has-suffix" oninput="recalc()"><span class="suffix">%</span></div></div>
       </div>
+      <div class="grid" style="margin-bottom:10px">
+        <div class="field"><label>Service Fee Estimate</label><div class="input-wrap"><span class="prefix">$</span><input type="number" id="serviceFee" value="0" class="has-prefix" oninput="recalc()"></div></div>
+      </div>
       <div class="field"><label>NOTES</label><textarea id="notes" rows="3" placeholder="Additional terms, notes..."></textarea></div>
     </div>
     <!-- Summary -->
@@ -515,20 +518,22 @@ function recalc(){
   var sub=equipTotal+travelTotal+crewTotal;
   var mkp=v("markup");
   var fee=sub*(mkp/100);
-  var total=sub+fee;
+  var svcFee=v("serviceFee");
+  var total=sub+fee+svcFee;
   var depPct=v("depositPct");
   var deposit=total*(depPct/100);
   var balance=total-deposit;
 
   document.getElementById("headerTotal").textContent=fmt(total);
   document.getElementById("summaryTotal").textContent=fmt(total);
-  document.getElementById("summaryBreakdown").innerHTML=
-    "Equipment: "+fmt(equipTotal)+"<br>Travel: "+fmt(travelTotal)+"<br>Crew: "+fmt(crewTotal)+
-    '<br><span style="margin-top:4px;border-top:1px solid #3a3220;padding-top:4px;display:inline-block">Subtotal: '+fmt(sub)+"</span><br>+ "+mkp+"% fee: "+fmt(fee)+
-    '<br><span style="margin-top:4px;border-top:1px solid #3a3220;padding-top:4px;display:inline-block">Deposit ('+depPct+'%): '+fmt(deposit)+'</span><br>Balance: '+fmt(balance);
+  var bkdn="Equipment: "+fmt(equipTotal)+"<br>Travel: "+fmt(travelTotal)+"<br>Crew: "+fmt(crewTotal)+
+    '<br><span style="margin-top:4px;border-top:1px solid #3a3220;padding-top:4px;display:inline-block">Subtotal: '+fmt(sub)+"</span><br>+ "+mkp+"% fee: "+fmt(fee);
+  if(svcFee>0)bkdn+="<br>+ Coordination: "+fmt(svcFee);
+  bkdn+='<br><span style="margin-top:4px;border-top:1px solid #3a3220;padding-top:4px;display:inline-block">Deposit ('+depPct+'%): '+fmt(deposit)+'</span><br>Balance: '+fmt(balance);
+  document.getElementById("summaryBreakdown").innerHTML=bkdn;
 
   // Store for quote
-  window._quoteData={equipTotal:equipTotal,travelTotal:travelTotal,crewTotal:crewTotal,sub:sub,fee:fee,total:total,mkp:mkp,
+  window._quoteData={equipTotal:equipTotal,travelTotal:travelTotal,crewTotal:crewTotal,sub:sub,fee:fee,svcFee:svcFee,total:total,mkp:mkp,
     depPct:depPct,deposit:deposit,balance:balance,
     equipItems:[],travelItems:travelItems,crewItems:[],gripDays:gripDays,gripTotal:gripTotal,greenTotal:greenTotal,studioTotal:studioTotal,shootDays:shootDays};
   if(gripDays>0)window._quoteData.equipItems.push({d:"Grip & Lighting Kit Fee ("+gripDays+" "+pl(gripDays,"day")+")",a:gripTotal});
@@ -577,6 +582,7 @@ function showQuote(){
 
   html+='<div class="q-totals" style="margin:0 44px;"><div class="q-total-row"><span>Subtotal</span><span class="q-tr-val">'+fmt(d.sub)+'</span></div>';
   html+='<div class="q-total-row"><span>Production Fee ('+d.mkp+'%)</span><span class="q-tr-val">'+fmt(d.fee)+'</span></div>';
+  if(d.svcFee>0)html+='<div class="q-total-row"><span>Production Coordination & Administration</span><span class="q-tr-val">'+fmt(d.svcFee)+'</span></div>';
   html+='<div class="q-grand"><span class="q-g-label">TOTAL</span><span class="q-g-val">'+fmt(d.total)+'</span></div>';
   html+='<div style="margin-top:14px;padding-top:14px;border-top:1px solid #e0dcd4">';
   html+='<div class="q-total-row"><span>Deposit Due ('+d.depPct+'%)</span><span class="q-tr-val" style="color:#d4a438;font-weight:700">'+fmt(d.deposit)+'</span></div>';
